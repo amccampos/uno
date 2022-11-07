@@ -20,7 +20,7 @@
     "MUDE A COR" : A = ÀS (muda o naipe)
   
   A partida será jogada com um único baralho. Assim, teremos quatro cartas de um valor. Por
-  exemplo, 7♥, 7♦, 7♣, 7♠, com exceção do coringa, que há apenas dois: um vermelho e um preto.
+  exemplo, 7♥, 7♦, 7♣, 7♠, com exceção do coringa, que há apenas duas: um vermelho e um preto.
   Porém, para seguir o padrão das cartas, os coringas terão também um naipe, mas serão apenas
   dos naipes: ♥ (coringa vermelho) e ♣ (coringa preto).
 
@@ -64,7 +64,7 @@ void debug(char *message) {
 // DE FORMA ORGANIZADA, USANDO DIFERENTES FUNÇÕES E ARQUIVOS.
 
 int main() {
-  // Obs: As variáveis desse template foram definidas apenas para o código compilar e rodar.
+  // Obs: As variáveis deste template foram definidas apenas para o código compilar e rodar.
   // Então, cabe a você usar as variáveis adequadas em função do que está lendo.
   char temp[MAX_LINE];   // string para leitura temporária de dados
   char my_id[MAX_ID_SIZE];  // identificador do seu bot
@@ -92,7 +92,7 @@ int main() {
   de cartas na mão do bot está entre []. Cabe a você tratar essa entrada.
   */
 
-  // lê uma linha até o '\n' com os identificadores dos jogadores.
+  // Lê uma linha até o '\n' com os identificadores dos jogadores.
   // Será necessário separar os identificadores para saber quem são, quantos bots estão
   // jogando e qual a ordem inicial de jogada deles.
   scanf("PLAYERS %[^\n]\n", temp);
@@ -139,20 +139,21 @@ int main() {
         <ação> <complemento1> [complemento2]
       
       Ou seja, <ação> <complemento1> estão sempre presentes na mensagem do evento, porém
-      a presença de [complemento2] vai depender da açao e do complemento1.
+      a presença de [complemento2] vai depender da ação e do complemento1.
       Por exemplo, se um bot descartar um 7 de paus, será gerado o seguinte evento:
         DISCARD 7♣
-      A ação é DISCARD e o complemento é 7♣. Portanto, o naipe ♣ é o que deve ser
-      descartado pelo próximo bot (guarde essa informação porque poderá ser o seu bot).
+      A ação é DISCARD e o complemento é 7♣. Portanto, o próximo bot deverá descartar ou
+      um 7 (de qualquer naipe) ou uma carta do naipe ♣. Guarde essa informação porque o
+      próximo bot poderá ser o seu.
     
       Se a carta descartada for, por exemplo, A♣ (Ás = muda de cor), haverá um segundo
-      complemento, que deve ser a nova cor (naipe) a ser jogado pelos
-      próximos jogadores. Por exemplo: no evento "DISCARD A♣ ♥", o próximo bot deverá
-      então descartar alguma carta do naipe ♥.
+      complemento com o naipe a ser seguido pelos próximos jogadores. Por exemplo: no
+      evento "DISCARD A♣ ♥", o próximo bot deverá então descartar alguma carta do naipe ♥.
 
-      Guarde também o valor da carta descartada porque se for uma carta que pede uma ação
-      do próximo jogador, por exemplo o V (valete = compre 2), a primeira ação do próximo
-      bot (pode ser o seu) deverá ser "BUY 2", sob pena de ser eliminado da partida.
+      O valor da carta descartada pode também pedir uma ação do próximo jogador. Por
+      exemplo, se for descartado o V (valete = compre 2), a primeira ação do próximo
+      bot (pode ser o seu) deverá ser obrigatoriamente "BUY 2", sob pena do bot ser
+      eliminado da partida.
       */
 
       scanf("%s %s", id, action, complement);
@@ -171,25 +172,26 @@ int main() {
     
     /*
     Seu bot realiza uma ação no jogo enviando para a saída-padrão uma string no formato:
-    <ação> [...complemento]
+      <ação> <complemento1> [complemento2]
 
     Por exemplo, se o bot anterior soltar uma carta de compra (compre 2 ou compre 4), a
-    ação que seu bot deve fazer é "BUY" e o complemento será "2" ou "4", dependendo da
+    <ação> que seu bot deve fazer é "BUY" e o <complemento1> será "2" ou "4", dependendo da
     quantidade de cartas que ele deve comprar.
     Ou seja, a string que seu bot deve enviar para a saída-padrão será:
     - "BUY 4", se o bot anterior soltou um Coringa (C), ou;
     - "BUY 2", se o bot anterior soltou um Valete (V).
-    Depois do envio desta ação, o simulador irá enviar para o seu bot o número de cartas
-    solicitado. Então, prepare-se para ler da entrada padrão as cartas.
+    Depois do envio desta ação, o simulador irá enviar para o seu bot uma quantidade de cartas
+    correspondente ao número solicitado. Então, prepare-se para ler da entrada padrão as cartas.
     Se a ação for "BUY 2", leia duas strings. Elas serão as cartas compradas e você deve
     guardá-las na sua mão. Se for "BUY 4", leia 4 strings.
     Depois da leitura, termina a vez do seu bot e o simulador passa a vez para um outro bot.
 
     Caso não tenha nenhuma ação de compra a ser realizada, seu bot deve jogar normalmente,
     que é descartar uma carta cujo valor ou naipe é o mesmo da carta da mesa. Ou seja, você
-    deve saber qual a última carta descartada ou, se foi um Ás, qual o naipe solicitado.
+    deve saber qual a última carta descartada ou, se foi um Ás ou Coringa, qual o naipe
+    solicitado.
 
-    Nesse caso, a ação é "DISCARD" e o complemento é a carta a ser descartada, por exemplo:
+    No exemplo abaixo, a <ação> é "DISCARD" e o <complemento1> é a carta a ser descartada:
       "DISCARD 2♣"
 
     O bot também pode descartar uma carta especial, independente do naipe da mesa, que pode
@@ -199,36 +201,38 @@ int main() {
     Ao descartar um Ás ou Coringa, você deve enviar um segundo complemento para sua ação com
     o naipe que você deseja. Por exemplo:
       "DISCARD C♣ ♥"
-    Neste caso, seu bot soltou um coringa preto e pediu para o naipe mudar para ♥ (além do
-    próximo jogador precisar comprar 4 cartas).
-    Depois de«o descarte, a vez do seu bot termina.
+    Neste caso, seu bot soltou um coringa preto e pediu para o naipe mudar para ♥ (o próximo
+    jogador precisar comprar 4 cartas e o seguinte levar em conta que o ♥ é o naipe da vez).
+    Depois do descarte, a vez do seu bot termina.
 
     Se o bot não tiver carta com o naipe da mesa para descartar, ele deve comprar uma carta
     do baralho, enviando a ação "BUY" e o complemento "1", informando que ele irá comprar uma
     carta da pilha.
-    Assim como as ações "BUY 2" e "BUY 4", após o envio desta ação, leie da entrada-padrão
-    a carta puxada da pilha e guarde na sua mão.
+    Assim como as ações "BUY 2" e "BUY 4", após o envio desta ação, seu bot deve ler da
+    entrada-padrão a carta puxada da pilha e guarde na sua mão.
 
     Vale ressaltar que nada impede do bot comprar quantas cartas quiser, mesmo tendo uma carta
     na mão com o valor ou naipe da mesa. Só não é possível comprar uma quantidade diferente de
-    cartas quando le deve comprar 2 (por causa de um Valete) ou 4 (por causa de um coringa).
+    cartas quando ele deve obrigatoriamente comprar 2 (por causa de um Valete) ou 4 (por causa
+    de um coringa).
 
     Depois da carta lida, não há opção de descarte. Agora, é a vez de um outro bot jogar.
 
     Além das ações de descartar (DISCARD) e comprar (BUY), o bot pode também enviar mensagens
-    para ser apresentada no jogo. Essas mensagens não são repassadas para os outros bot, mas
-    aparecem no console. Para enivar uma mensagem, o bot deverá enviar para a saída-padrão:
+    para serem apresentadas no jogo. Essas mensagens não são repassadas para os outros bot, mas
+    aparecem no console. Para enviar uma mensagem, o bot deverá enviar para a saída-padrão o
+    seguinte comando:
       SAY <text>
 
-    O bot pode enviar quantas mensagens quiser, desde que seja ANTES das ações de descarte e
-    compra. Por exemplo:
+    O bot pode enviar quantas mensagens quiser, desde que seja *ANTES* das ações de descarte ou
+    de compra. Alguns exemplos de mensagens são:
       "SAY Caramba! Eu já ia bater!"
       "SAY Tu tá lascado!!!"
 
     Resumindo, o bot pode realizar uma das seguintes ações:
     - "SAY <text>", onde <texto> é uma mensagem que irá aparecer durante a partida.
     - "DISCARD <card> [naipe]", onde <card> é a carta da mão a ser descartada.
-      Se <card> for um Coringa (C) ou Ás (A), um naipe deve ser solicitado também.
+      Se <card> for um Coringa (C) ou Ás (A), um naipe deve ser informado também.
     - "BUY <num>", onde <num> é a quantidade de cartas a serem compradas da pilha.
 
     Exemplos:
@@ -239,10 +243,11 @@ int main() {
       BUY 4
       BUY 1
 
-    OBS: Todas as mensagens enviadas DEVEM terminar com salto de linha ('\n'), caso
-         contrário, o simulador não saberá quando uma ação termina.
+    OBS: Todas as mensagens enviadas **DEVEM terminar com salto de linha ('\n')**, caso
+         contrário, o simulador não saberá quando uma ação termina e quebrar o sincronização
+         das mensagens.
 
-    Qualquer ação enviada para o simulador que não seja condinzente com o estado do jogo,
+    Qualquer ação enviada para o simulador que não seja condizente com o estado do jogo,
     haverá uma penalidade para o bot.
     - Se o bot descartar uma carta que não tem na mão ou se o naipe da carta não for o que
       se encontra sobre a mesa, a ação será ignorada. Ou seja, para o simulador, o bot
