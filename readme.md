@@ -44,12 +44,12 @@ git clone https://github.com/amccampos/uno
 ```
 
 Você encontrará 6 arquivos:
-- `readme.md`: este arquivo
-- `bot_A.c`: template inicial com explicações para a criação de um bot
-- `bot_B.c`: contém o mesmo conteúdo de bot_A permitindo ter um backup das explicações
-- `bot_A`: executável com um comportamento básico
-- `bot_B`: bot_A com outro nome para você poder colocar um para jogar com o outro
-- `uno`: programa gerenciado do jogo Uno
+- `readme.md`: este arquivo.
+- `bot_A.c`: template inicial com explicações para a criação de um bot.
+- `bot_B.c`: contém o mesmo conteúdo de `bot_A.c`, permitindo ter um backup das explicações.
+- `bot_A`: executável com um comportamento básico para fins de teste.
+- `bot_B`: mesmo executável `bot_A`, mas outro nome para você poder colocar um para jogar com o outro.
+- `uno`: programa gerenciador do jogo Uno.
 
 Os arquivos `uno`, `bot_A` e `bot_B` são executáveis no formato do linux (não funcionam em outro S.O.). Você deve trabalhar, portanto, no Linux ou no WSL (sobre o Windows).
 
@@ -59,17 +59,17 @@ Para ter uma ideia do funcionamento do jogo, chame o programa `uno` passando com
 ./uno bot_A bot_B
 ```
 
-O console apresentará no console a sequência de ações realizadas pelos bots.
+O console apresentará a sequência de ações realizadas pelos bots.
 
-Para construir teu projeto, edite um dos arquivos `bot_A.c` ou `bot_B.c`. Estes arquivos são templates de um bot rudimentar, com instruções preciosas para você começar a implementar teu próprio bot. O arquivo compila e executa normalmente, usando, por exemplo:
+Para construir teu projeto, edite um dos arquivos `bot_A.c` ou `bot_B.c`. Estes arquivos são templates de um bot rudimentar, mas com instruções preciosas para você começar a implementar teu próprio bot. O arquivo compila e executa normalmente, usando, por exemplo:
 
 ```sh
 gcc bot_A.c -o bot_A
 ```
 
-Com esse comando, uma nova versão do programa `bot_A` é gerada e pode ser testada com `./uno bot_A bot_B`. Porém, como você verá, o comportamento é simples. O único comportamento que ele tem é descartar a carta A♥ na sua vez. Cada a você melhorá-lo.
+Com esse comando, uma nova versão do programa `bot_A` é gerada e pode ser testada com `./uno bot_A bot_B`. Porém, como você verá, o comportamento é simples. O único comportamento que ele tem é descartar a carta A♥ na sua vez. Cabe a você melhorá-lo.
 
-Lembre-se de organizar tua solução em diferentes funções e separando em diferentes módulos. Você pode, por exemplo, ter um módulo só com operações sobre as cartas do baralho, outro com as funções de raciocínio sobre as cartas que os outros jogadores têm na mão, entre outros.
+Lembre-se de organizar tua solução em diferentes funções e separando em diferentes módulos (arquivos .c e .h). Você pode, por exemplo, ter um módulo só com operações sobre as cartas do baralho, outro com as funções de raciocínio sobre as cartas que os outros jogadores têm na mão, entre outros.
 
 ### Trabalhando no replit
 
@@ -84,7 +84,7 @@ A principal diferença é que você não precisará instalar nada. Além disso, 
 
 Ao clicar no Play, uma nova partida será executada com os bots `bot_A` `bot_B`, levando em conta que eles já foram compilados. A responsabilidade de gerar o executável do seu bot é sua. Portanto, **sempre que você fizer uma alteração no código-fonte de seu bot, certifique-se de compilá-lo antes de clicar no botão Play**.
 
-A forma de compilar é idêntica à compilação de quem trabalho localmente:
+A forma de compilar é idêntica à compilação de quem trabalha localmente:
 
 ```sh
 gcc bot_A.c -o bot_A
