@@ -1,5 +1,7 @@
 /*  Local para colocar as variaveis :)
-
+    Jogador *jogadores;
+    Mao minhaMao;
+    Carta cartaInicial;
 */
 
 #include <stdio.h>
@@ -14,7 +16,7 @@
 // Struct para os bots
 
 typedef struct {     // struct feita para representar uma unica carta
-    char valorCarta;
+    char *valorCarta;
     char *valorNaipe;
 }Carta;
 
@@ -56,6 +58,32 @@ Jogador* armazenaJogadores(char *mensagem){   // crial um array onde cada elemen
     return array;
 }
 
+Carta gerarCarta(char *mensagem){     // transforma uma string com valor e nipe em uma variavel do tipo Carta
+    Carta saida;
+    int tamanho = strlen(mensagem);
+
+    if (mensagem[0] == '1' && mensagem[1] == '0')
+    {
+        char valor[3] = "10";
+        saida.valorCarta = malloc(sizeof(char) * 3);
+        strcpy(saida.valorCarta, valor);
+        saida.valorNaipe = malloc(sizeof(char) * (tamanho));
+
+        for (int i = 2; i < tamanho; i++){
+            saida.valorNaipe[i-2] = mensagem[i];
+        }
+    }else{
+        saida.valorCarta = malloc(sizeof(char) * 2);
+        saida.valorCarta[0] = mensagem[0];
+        saida.valorNaipe = malloc(sizeof(char) * tamanho);
+
+        for (int i = 1; i < tamanho; i++){
+            saida.valorNaipe[i-1] = mensagem[i];
+        }
+    }
+    return saida;
+}
+
 Mao maoInicial(char *mensagem){     // Faz a leitura das cartas iniciais do bot
     Mao saida;
     Carta aux;
@@ -72,39 +100,16 @@ Mao maoInicial(char *mensagem){     // Faz a leitura das cartas iniciais do bot
     saida.cartasDoJogador = malloc(sizeof(Carta) * (cont-2));
 
     for (int i = 1; i < cont - 1; i++) {
-        aux.valorCarta = vetor[i][0];
         tamanho = strlen(vetor[i]);
-        if (i == 1){
-            aux.valorNaipe = malloc(sizeof(char) * tamanho);
-            for (int j = 1; j < tamanho; j++){
-                aux.valorNaipe[j-1] = vetor[i][j];
-            }
-        }else{
-            aux.valorNaipe = realloc(aux.valorNaipe, sizeof(char) * tamanho);
-            for (int j = 1; j < tamanho; j++){
-                aux.valorNaipe[j-1] = vetor[i][j];
-            }
-        }
-        saida.cartasDoJogador[i-1].valorNaipe = malloc(sizeof(char) * tamanho);
-
-        saida.cartasDoJogador[i-1].valorCarta = aux.valorCarta;
+        aux = gerarCarta(vetor[i]);
+        saida.cartasDoJogador[i-1].valorCarta = malloc(sizeof(char) * 2);
+        saida.cartasDoJogador[i-1].valorNaipe = malloc(sizeof(char) * 4);
+        strcpy(saida.cartasDoJogador[i-1].valorCarta, aux.valorCarta);
         strcpy(saida.cartasDoJogador[i-1].valorNaipe, aux.valorNaipe);
         saida.qtdDeCartas = i;
     }
     free(aux.valorNaipe);
-    return saida;
-}
-
-Carta gerarCarta(char *mensagem){     // transforma uma string com valor e nipe em uma variavel do tipo Carta
-    Carta saida;
-    int tamanho = strlen(mensagem);
-
-    saida.valorCarta = mensagem[0];
-    saida.valorNaipe = malloc(sizeof(char) * tamanho);
-
-    for (int i = 1; i < tamanho; i++){
-        saida.valorNaipe[i-1] = mensagem[i];
-    }
+    free(aux.valorCarta);
     return saida;
 }
 
