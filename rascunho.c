@@ -84,6 +84,21 @@ Carta gerarCarta(char *mensagem){     // transforma uma string com valor e nipe 
     return saida;
 }
 
+void acompanhaPilha(Carta totalDeCartas[56], Carta pedaco[MAX_LINE]){
+  //debug(pedaco->valorCarta[0]);
+  //debug(pedaco->valorNaipe);
+
+  int i;
+  for(i=0;i < 54; i++){
+    debug("entrou1");
+    if(strstr(pedaco, totalDeCartas[i])){
+      totalDeCartas[i].valorCarta = "";
+      totalDeCartas[i].valorNaipe = "";
+      debug("entrou");
+    }
+  }
+}
+
 Mao maoInicial(char *mensagem){     // Faz a leitura das cartas iniciais do bot
     Mao saida;
     Carta aux;
@@ -148,36 +163,63 @@ void debug(char *message) {
 
 int main() {
 
+    Carta totalDeCartas[56];
     char temp[MAX_LINE];  
     char my_id[MAX_ID_SIZE]; 
     Jogador *jogadores;
     Mao minhaMao;
-    Carta cartaInicial;
+    Carta pilhaSobMesa[100];
+    int contador = 0;
+    char auxiliar[MAX_LINE] = {""};
+    char ayuda[MAX_LINE];
+    int i,j,k;
+    k = 0;
+    char* naipes[4] = {"♥", "♦", "♣", "♠"};
+    char* valor[13] = {"A", "2", "3", "4","5","6","7","8","9","10","V","D","R"}; 
 
     setbuf(stdin, NULL);  
     setbuf(stdout, NULL);  
     setbuf(stderr, NULL);
         
+    //Adição de itens ao vetor totalDeCartas
+    for(i = 0; i < 14; i++){
+      if(k < 52){
+          for(j=0; j < 4; j++){
+          totalDeCartas[k].valorCarta = valor[i];
+          totalDeCartas[k].valorNaipe = naipes[j];
+          k++;
+        }
+      }
+      if(k>51){
+        for(j=0; j <= 2; j++){
+          totalDeCartas[k].valorCarta = "C";
+          totalDeCartas[k].valorNaipe = naipes[j];
+          k++;
+          j = j+2;
+        }
+      }
+    }
 
     // Ler quais são os jogadores
 
-    scanf("PLAYERS %[^\n]\n", temp);
 
-    debug(temp);
+  scanf("PLAYERS %[^\n]\n", temp);
+
+    //debug(temp);
 
     jogadores = armazenaJogadores(temp);
-    debug(jogadores[1].id);
+    //debug(jogadores[1].id);
 
     // Id do nosso bot
     scanf("YOU %s\n", my_id);
-    debug(my_id);
+    //debug(my_id);
 
     // A mão recebida
 
     scanf("HAND %[^\n]\n", temp);
-    debug(temp);
+    //debug(temp);
     minhaMao = maoInicial(temp); 
-    debug(minhaMao.cartasDoJogador[4].valorNaipe);
+    //debug(minhaMao.cartasDoJogador[4].valorNaipe);
     
     // exemplos da forma de como acessar os elementos de maoInicial:
     //minhaMao.cartasDoJogador[i].valorCarta
@@ -186,7 +228,10 @@ int main() {
     // carta inicial 
 
     scanf("TABLE %s\n", temp);
-    cartaInicial = gerarCarta(temp);
+    pilhaSobMesa[contador] = gerarCarta(temp);
+    //debug(temp);
+    acompanhaPilha(totalDeCartas, &pilhaSobMesa[contador]);
+    contador++;
      
     char id[MAX_ID_SIZE];
     char action[MAX_ACTION];
@@ -201,7 +246,24 @@ int main() {
         // ler a jogada do bot anterior a vc 
 
         scanf("%s %s", action, complement);
-        // Fiz duas funcões para leitura de jogadas uma pra quando tiver complemento 2 ou não 
+      
+        //aqui é a adição das cartas na pilhaSobMesa
+        if(strcmp(action, "DISCARD") == 0){
+          pilhaSobMesa[contador] = gerarCarta(complement);
+          contador++;
+          if(strstr(pilhaSobMesa[contador-1].valorCarta,"A")!= NULL){
+            //Acredito não ter erros, mas por conta do bot não estar ativo não deu para testar
+            auxiliar[0] = 'A';
+            scanf("%s", ayuda);
+            strcat(auxiliar, ayuda);
+            pilhaSobMesa[contador] = gerarCarta(auxiliar);
+            contador++;
+          }
+        }
+        //Aqui acaba a adição das cartas a pilha já com a mudança de naipa em caso de A//Gabriel
+
+      
+        // Fiz duas funcões para leitura de jogadas uma pra quando tiver complemento 2 ou não //Rubens
         // jogadaSemComplemento2 e jogadaComComplemento2
 
     } while (strcmp(action, "TURN") || strcmp(complement, my_id));
