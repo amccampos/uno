@@ -84,7 +84,7 @@ Carta gerarCarta(char *mensagem){     // transforma uma string com valor e nipe 
     return saida;
 }
 
-void acompanhaPilha(Carta totalDeCartas[56], Carta pedaco[MAX_LINE]){
+/*void acompanhaTotal(Carta totalDeCartas[56], Carta pedaco[MAX_LINE]){
   //debug(pedaco->valorCarta[0]);
   //debug(pedaco->valorNaipe);
 
@@ -97,7 +97,7 @@ void acompanhaPilha(Carta totalDeCartas[56], Carta pedaco[MAX_LINE]){
       debug("entrou");
     }
   }
-}
+}*/
 
 Mao maoInicial(char *mensagem){     // Faz a leitura das cartas iniciais do bot
     Mao saida;
@@ -168,10 +168,10 @@ int main() {
     char my_id[MAX_ID_SIZE]; 
     Jogador *jogadores;
     Mao minhaMao;
-    Carta pilhaSobMesa[100];
+    Carta pilhaSobMesa[56];
     int contador = 0;
-    char auxiliar[MAX_LINE] = {""};
-    char ayuda[MAX_LINE];
+    char auxiliar[MAX_LINE];
+    char complemento2[MAX_LINE];
     int i,j,k;
     k = 0;
     char* naipes[4] = {"♥", "♦", "♣", "♠"};
@@ -230,7 +230,7 @@ int main() {
     scanf("TABLE %s\n", temp);
     pilhaSobMesa[contador] = gerarCarta(temp);
     //debug(temp);
-    acompanhaPilha(totalDeCartas, &pilhaSobMesa[contador]);
+    //acompanhaTotal(totalDeCartas, &pilhaSobMesa[contador]);
     contador++;
      
     char id[MAX_ID_SIZE];
@@ -253,9 +253,9 @@ int main() {
           contador++;
           if(strstr(pilhaSobMesa[contador-1].valorCarta,"A")!= NULL){
             //Acredito não ter erros, mas por conta do bot não estar ativo não deu para testar
-            auxiliar[0] = 'A';
-            scanf("%s", ayuda);
-            strcat(auxiliar, ayuda);
+            strcpy(auxiliar, "A");
+            scanf("%s", complemento2);
+            strcat(auxiliar, complemento2);
             pilhaSobMesa[contador] = gerarCarta(auxiliar);
             contador++;
           }
