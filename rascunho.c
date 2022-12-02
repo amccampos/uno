@@ -168,7 +168,7 @@ void retornaFrase(){
                                "Que nervoso...",
                                "UNO!! Brincadeira...",
                                "Alguem ta querendo umas cartas emprestadas?",
-                               "TRUCO!!!",
+                               "TRUCO! Eh mentira...",
                                "Aff...queria estar vendo a copa"};
 
   int indice = rand()%6;
@@ -279,11 +279,15 @@ void adicionaCarta(Jogador *bot, Carta c){
 
 int selecionaCarta(Carta c, Jogador *bot){ //encontra a carta a ser jogada
   int indice; //indice da carta que será jogada
+  char naipe[strlen("♥")];
+  strcpy(naipe, escolheNaipe(bot));
 
   if(verificaValor("C", bot->maoDoJogador, &indice)){ 
     return indice;
+  }else if(strcmp(naipe, c.valorNaipe)==0 && verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice)){
+    return indice;
   }else if(verificaValor(c.valorCarta, bot->maoDoJogador, &indice) || 
-           verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice) ){
+           verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice)){
     return indice;
   }else if(verificaValor("A", bot->maoDoJogador, &indice)){
     return indice;
@@ -291,7 +295,7 @@ int selecionaCarta(Carta c, Jogador *bot){ //encontra a carta a ser jogada
 }
 
 int compraCartas(Carta c, Carta especial, Jogador *bot){
-  if(strcmp(c.valorCarta, "C")==0){
+  if(strcmp(c.valorCarta, "C")==0 && !comparaCartas(c, especial)){
     return 4;
   }else if(strcmp(c.valorCarta, "V")==0 && !comparaCartas(c, especial)){
     return 2;
@@ -362,34 +366,42 @@ Carta inicializaCarta(char *valorCarta, char *valorNaipe){
   return c;
 }
 
-void desaloca(int qtdPilha, Carta *ultimoValete, Mao *maoBot, Carta *pilhaSobMesa, Jogador *jogadores){
-  for(int i=0; i<qtdPilha; i++){
-      free(pilhaSobMesa[i].valorCarta);
-      free(pilhaSobMesa[i].valorNaipe);
-    }
-
-    free((*ultimoValete).valorCarta);
-    free((*ultimoValete).valorNaipe);
-
-    free(jogadores); 
-    free(maoBot->cartasDoJogador);
+void desalocaCarta(Carta *c){
+    free((*c).valorCarta);
+    free((*c).valorNaipe);
 }
 
-void mudancaNaipe(int *qtdPilha, Carta *pilhaSobMesa, Carta recebida, char *auxNaipe){  //atualiza cartas do tipo C e A com novo naipe
+/*void mudancaNaipe(int *qtdPilha, Carta *pilhaSobMesa, char *auxNaipe){  //atualiza cartas do tipo C e A com novo naipe
+
   if(strcmp(pilhaSobMesa[(*qtdPilha)-1].valorCarta, "C") == 0 ||
      strcmp(pilhaSobMesa[(*qtdPilha)-1].valorCarta, "A") == 0){ 
        strcpy(recebida.valorCarta, " ");
        strcpy(recebida.valorNaipe, auxNaipe);
        pilhaSobMesa[(*qtdPilha)++] = recebida;
     }
-}
+}*/
 
-void verificaValete(int qtdPilha, Carta *pilhaSobMesa, Carta *ultimoValete){
-  if((strcmp(pilhaSobMesa[qtdPilha-1].valorCarta, "V") == 0) &&  //atualiza ultimo valete jogado 
-       (!comparaCartas(pilhaSobMesa[qtdPilha-1], *ultimoValete))){
-       *ultimoValete = pilhaSobMesa[qtdPilha-1];
+void verificaEspecial(Carta c, Carta *ultimoEspecial){
+  if((strcmp(c.valorCarta, "V") == 0 || strcmp(c.valorCarta, "C") == 0) && !comparaCartas(c, *ultimoEspecial)){
+       *ultimoEspecial = c;
     }
 }
+
+void acaoCompra(int qtdCartas, Jogador *bot){
+  char cartas[qtdCartas][MAX_LINE];
+  Carta c;
+
+  printf("BUY %d\n", qtdCartas);
+
+  for(int i=0; i<qtdCartas; i++){ //recebe cartas do gerenciador e add na mao
+    scanf(" %s\n", cartas[i]);
+    c = gerarCarta(cartas[i]);
+    adicionaCarta(bot, c);
+  }
+
+}
+
+
 
 int main() {
 
@@ -403,19 +415,19 @@ int main() {
     Jogador *jogadores;
     Mao minhaMao;
   
-    Carta ultimoValete; //salva ultima carta especial jogada
+    Carta ultimoEspecial; //salva ultimo valete jogado
 
-    ultimoValete = inicializaCarta(" ", "♥"); //inicializa carta ultimoValete
+    ultimoEspecial = inicializaCarta(" ", "♥"); 
 
     char complemento2[MAX_LINE];
-    char auxNaipe[MAX_LINE] = {0};
+    char auxNaipe[MAX_LINE] = {0}; //guarda o naipe atual da partida
 
     setbuf(stdin, NULL);  
     setbuf(stdout, NULL);  
     setbuf(stderr, NULL);
     srand(time(NULL));
 
-    inicializaBaralho(pilhaSobMesa);
+    inicializaBaralho(totalDeCartas);
       
     
     // Ler quais são os jogadores
@@ -470,14 +482,14 @@ int main() {
     } while (strcmp(acao, "TURN") || strcmp(complemento, my_id));
 
 
-    debug("----- MINHA VEZ -----");
+    //Vez do bot
     
     int cartasCompradas;
     Carta recebida;
  
     recebida = inicializaCarta(pilhaSobMesa[contador-1].valorCarta, auxNaipe); //inicializa carta recebida
 
-    cartasCompradas = compraCartas(recebida, ultimoValete, &jogadores[1]); //verifica se o jogador terá que comprar cartas e retorna a qtd
+    cartasCompradas = compraCartas(recebida, ultimoEspecial, &jogadores[1]); //verifica se o jogador terá que comprar cartas e retorna a qtd
 
     if(!cartasCompradas){
         int indice = selecionaCarta(recebida, &jogadores[1]);  //recebe carta que vai jogar
@@ -486,17 +498,25 @@ int main() {
         retiraCarta(&jogadores[1], indice); //retira a carta da mao do jogador
     }else{
         retornaFrase();
-        printf("BUY %d\n", cartasCompradas);
-        recebeCartas(cartasCompradas, &jogadores[1]); //recebe as cartas compradas do gerenciador e atualiza a mao do jogador
+        acaoCompra(cartasCompradas, &jogadores[1]);
     }
- 
-    mudancaNaipe(&contador, pilhaSobMesa, recebida, auxNaipe); //atualiza pilha com novo naipe quando for jogado C ou A
 
-    verificaValete(contador, pilhaSobMesa, &ultimoValete); //verifica se a ultima carta foi um valete e atualiza ultimoValete
+    strcpy(recebida.valorNaipe, auxNaipe);
+    strcpy(recebida.valorCarta, pilhaSobMesa[contador-1].valorCarta);
 
+    verificaEspecial(recebida, &ultimoEspecial); //verifica se a ultima carta foi um As, Coringa ou Valete e salva o ultimo desses jogado
+
+    desalocaCarta(&recebida);
   }
 
-  desaloca(contador, &ultimoValete, &minhaMao, pilhaSobMesa, jogadores);
+  for(int i=0; i<contador; i++){
+    desalocaCarta(&pilhaSobMesa[i]);
+  }
+
+  desalocaCarta(&ultimoEspecial);
+  
+  free(jogadores);
+  free(minhaMao.cartasDoJogador);
 
     return 0;
 }
