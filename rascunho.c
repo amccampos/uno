@@ -228,8 +228,10 @@ char *naipeFrequente(Jogador *bot){ //escolhe naipe que aparece com maior freque
   maior = maiorIndice = 0;
    
    for(int i=0; i<4; i++){
-        if(verificaNaipe(listaNaipes[i], bot->maoDoJogador, NULL)){
-          qtdNaipe[i] += 1;
+      for(int j=0; j<bot->maoDoJogador.qtdDeCartas; j++){
+        if(strcmp(listaNaipes[i], bot->maoDoJogador.cartasDoJogador[j].valorNaipe)==0){
+          qtdNaipe += 1;
+        }
       }
    }
 
