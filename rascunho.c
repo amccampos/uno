@@ -8,8 +8,6 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
-#include <math.h>
-
 
 #define MAX_LINE 100
 #define MAX_ACTION 10
@@ -88,8 +86,6 @@ Carta gerarCarta(char *mensagem){     // transforma uma string com valor e nipe 
             saida.valorNaipe[i-1] = mensagem[i];
         }
     }
-     debug("\nFUNCAO");
-    debug(saida.valorNaipe);
 
     return saida;
 }
@@ -97,7 +93,6 @@ Carta gerarCarta(char *mensagem){     // transforma uma string com valor e nipe 
 /*void acompanhaTotal(Carta totalDeCartas[56], Carta pedaco[MAX_LINE]){
   //debug(pedaco->valorCarta[0]);
   //debug(pedaco->valorNaipe);
-
   int i;
   for(i=0;i < 54; i++){
     debug("entrou1");
@@ -167,6 +162,17 @@ AcoesPorTurno jogadaComComplemento2(char * mensagem1, char *mensagem2, char *men
     return saida;
 }
 
+Carta inicializaCarta(char *valorCarta, char *valorNaipe){
+  char dados[MAX_LINE];  
+  Carta c;
+
+  strcpy(dados, valorCarta);
+  strcat(dados, valorNaipe);
+  c = gerarCarta(dados);
+
+  return c;
+}
+
 void retornaFrase(){
   const char *listaFrases[] = {"Poxa vida!", 
                                "Que nervoso...",
@@ -178,7 +184,7 @@ void retornaFrase(){
   int indice = rand()%6;
   int chance = rand()%100;
 
-  if(chance>=70){
+  if(chance<=30){
     printf("SAY %s\n", listaFrases[indice]);
   }
 }
@@ -207,14 +213,14 @@ int verificaValor(char *valorCarta, Mao maoJogador, int *indice){
   return 0;
 }
 
-int comparaCartas(Carta c1, Carta c2){
+/*int comparaCartas(Carta c1, Carta c2){
   if((strcmp(c1.valorCarta, c2.valorCarta) == 0) && (strcmp(c1.valorNaipe, c2.valorNaipe) == 0)){
     return 1;
   }
   return 0;
-}
+}*/
 
-char *escolheNaipe(Jogador *bot){ //escolhe naipe que aparece com maior frequencia na mao
+char *naipeFrequente(Jogador *bot){ //escolhe naipe que aparece com maior frequencia na mao
   char *listaNaipes[] = {"♥","♦","♣","♠"};
   int qtdNaipe[4] = {0};
   int maior, maiorIndice;
@@ -222,10 +228,8 @@ char *escolheNaipe(Jogador *bot){ //escolhe naipe que aparece com maior frequenc
   maior = maiorIndice = 0;
    
    for(int i=0; i<4; i++){
-      for(int j=0; j<bot->maoDoJogador.qtdDeCartas; j++){
-        if(strcmp(bot->maoDoJogador.cartasDoJogador[j].valorNaipe, listaNaipes[i]) == 0){
+        if(verificaNaipe(listaNaipes[i], bot->maoDoJogador, NULL)){
           qtdNaipe[i] += 1;
-        }
       }
    }
 
@@ -269,36 +273,36 @@ void adicionaCarta(Jogador *bot, Carta c){
   bot->maoDoJogador.cartasDoJogador[qtdAtual] = c;
 }
 
-int selecionaCarta(Carta c, Jogador *bot){ //encontra a carta a ser jogada (AINDA VOU MUDAR VARIAS COISAS)
-  int indice; //indice da carta que será jogada
-  char naipe[strlen("♥")];
-  strcpy(naipe, escolheNaipe(bot));
-
-  if(verificaValor("C", bot->maoDoJogador, &indice)){ 
-    return indice;
-  }else if((strcmp(naipe, c.valorNaipe)==0) && verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice)){
-    return indice;
-  }else if(verificaValor(c.valorCarta, bot->maoDoJogador, &indice) || 
-           verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice)){
-    return indice;
-  }else if(verificaValor("A", bot->maoDoJogador, &indice)){
-    return indice;
+void atualizaEspecial(Carta c, int *especial){
+  if(strcmp(c.valorCarta, "C") == 0 || strcmp(c.valorCarta, "V") == 0){
+    (*especial) = 1;
   }
 }
 
-int compraCartas(Carta c, Carta especial, char *naipe, Jogador *bot){
+int selecionaCarta(Carta c, Jogador *bot){ //encontra a carta a ser jogada (AINDA VOU MUDAR VARIAS COISAS)
+  int indice = 0; //indice da carta que será jogada
+  char naipe[strlen("♥")];
+  strcpy(naipe, naipeFrequente(bot));
 
-debug("\nDENTRO DE COMPRACARTAS");
-debug(c.valorCarta);
-debug(c.valorNaipe);
+  if(verificaValor("C", bot->maoDoJogador, &indice)){ 
+    return indice;
+  }else if(strcmp(c.valorNaipe, naipe) == 0 && verificaValor(c.valorCarta, bot->maoDoJogador, &indice)){
+    return indice;
+  }else if(verificaValor(c.valorCarta, bot->maoDoJogador, &indice)){
+    return indice;
+  }else if(verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice)){
+    return indice;
+  }else if(verificaValor("A", bot->maoDoJogador, &indice)){
+    return indice;
+  } 
+}
 
-debug("\nDENTRO DE COMPRACARTAS (ESPECIAL)");
-debug(especial.valorCarta);
-debug(especial.valorNaipe);
-
-  if(strcmp(c.valorCarta, "C")==0 && !comparaCartas(c, especial)){
+int compraCartas(Carta c, char *naipe, int *especial, Jogador *bot){
+  if(strcmp(c.valorCarta, "C")==0 && (*especial) == 1){
+    (*especial) = 0;
     return 4;
-  }else if(strcmp(c.valorCarta, "V")==0 && !comparaCartas(c, especial)){
+  }else if(strcmp(c.valorCarta, "V")==0 && (*especial) == 1){
+    (*especial) = 0;
     return 2;
   }else if(!verificaNaipe(naipe, bot->maoDoJogador, NULL) &&
            !verificaValor(c.valorCarta, bot->maoDoJogador, NULL)){
@@ -319,13 +323,13 @@ void recebeCartas(int qtdCartas, Jogador *bot){
 
 }
 
-void acaoDescarta(Jogador *bot, int indice, char *auxNaipe){
+Carta acaoDescarta(Jogador *bot, int indice, char *auxNaipe){
   char naipe[strlen("♣")];
   Carta c = bot->maoDoJogador.cartasDoJogador[indice];
   strcpy(auxNaipe, c.valorNaipe);
 
   if(strcmp(c.valorCarta, "A") == 0 || strcmp(c.valorCarta, "C") == 0){
-      strcpy(naipe, escolheNaipe(bot));
+      strcpy(naipe, naipeFrequente(bot));
       printf("DISCARD %s%s %s\n", c.valorCarta, c.valorNaipe, naipe);
       strcpy(auxNaipe, naipe);
     }else{
@@ -333,6 +337,7 @@ void acaoDescarta(Jogador *bot, int indice, char *auxNaipe){
     }
 
     retiraCarta(bot, indice); //retira a carta da mao do jogador
+    return c;
 }
 
 void inicializaBaralho(Carta totalDeCartas[56]){
@@ -360,28 +365,11 @@ void inicializaBaralho(Carta totalDeCartas[56]){
     }
 }
 
-Carta inicializaCarta(char *valorCarta, char *valorNaipe){
-  char dados[MAX_LINE];  
-  Carta c;
-
-  strcpy(dados, valorCarta);
-  strcat(dados, valorNaipe);
-  c = gerarCarta(dados);
-
-  return c;
-}
-
 void desalocaCarta(Carta *c){
     free((*c).valorCarta);
     free((*c).valorNaipe);
 }
 
-void verificaEspecial(Carta c, Carta *ultimoEspecial){
-  if(((strcmp(c.valorCarta, "V") == 0) || (strcmp(c.valorCarta, "C") == 0)) && !comparaCartas(c, *ultimoEspecial)){
-      strcpy((*ultimoEspecial).valorCarta, c.valorCarta);
-      strcpy((*ultimoEspecial).valorNaipe, c.valorNaipe);
-    }
-}
 
 void acaoCompra(int qtdCartas, Jogador *bot){
   char cartas[qtdCartas][MAX_LINE];
@@ -397,13 +385,11 @@ void acaoCompra(int qtdCartas, Jogador *bot){
 
 }
 
-
-
 int main() {
 
     Carta totalDeCartas[56];
-    Carta pilhaSobMesa[56];
-    int contador = 0;
+    Carta pilhaSobMesa[115];
+    int contador = 0, especial = 0;
 
     char temp[MAX_LINE];  
     char my_id[MAX_ID_SIZE]; 
@@ -411,9 +397,9 @@ int main() {
     Jogador *jogadores;
     Mao minhaMao;
   
-    Carta ultimoEspecial; //salva ultimo valete jogado
+   // Carta ultimoEspecial; //salva ultimo valete jogado
 
-    ultimoEspecial = inicializaCarta(" ", "♥"); 
+    //ultimoEspecial = inicializaCarta(" ", "♥"); 
 
     char complemento2[MAX_LINE];
     char auxNaipe[strlen("♣")]; //guarda o naipe atual da partida
@@ -423,9 +409,8 @@ int main() {
     setbuf(stderr, NULL);
     srand(time(NULL));
 
-    inicializaBaralho(totalDeCartas);
+   // inicializaBaralho(totalDeCartas);
       
-    
     // Ler quais são os jogadores
     scanf("PLAYERS %[^\n]\n", temp);
 
@@ -445,6 +430,7 @@ int main() {
     scanf("TABLE %s\n", temp);
     pilhaSobMesa[contador++] = gerarCarta(temp);
     strcpy(auxNaipe, pilhaSobMesa[contador-1].valorNaipe); //atualiza auxNaipe
+    atualizaEspecial(pilhaSobMesa[contador-1], &especial);
      
     char id[MAX_ID_SIZE];
     char acao[MAX_ACTION];
@@ -472,31 +458,34 @@ int main() {
             scanf(" %s", complemento2);
             strcpy(auxNaipe, complemento2);
           }
-
+           atualizaEspecial(pilhaSobMesa[contador-1], &especial);
         } 
-        //Aqui acaba a adição das cartas a pilha já com a mudança de naipa em caso de A//Gabriel
-        if(strcmp(acao, "BUY")==0 && (strcmp(complemento, "2") || strcmp(complemento, "4")))
-          verificaEspecial(pilhaSobMesa[contador-1], &ultimoEspecial); //verifica se a ultima carta foi um As, Coringa ou Valete e salva o ultimo desses jogado
+
+        if(especial == 1 && strcmp(acao, "BUY")==0 && 
+          (strcmp(complemento, "2")==0 || strcmp(complemento, "4")==0) ||
+           strcmp(acao, "INVALID ACTION") == 0){ //verifica se algum bot respondeu a especial
+          especial = 0;
+        }
 
     } while (strcmp(acao, "TURN") || strcmp(complemento, my_id));
 
 
     //Vez do bot
     
-    int cartasCompradas;
+    int cartasCompradas = 0;
     Carta recebida;
-    
  
     recebida = inicializaCarta(pilhaSobMesa[contador-1].valorCarta, pilhaSobMesa[contador-1].valorNaipe); //inicializa carta recebida
 
-    cartasCompradas = compraCartas(recebida, ultimoEspecial, auxNaipe, &jogadores[1]); //verifica se o jogador terá que comprar cartas e retorna a qtd
+    cartasCompradas = compraCartas(recebida, auxNaipe, &especial, &jogadores[1]); //verifica se o jogador terá que comprar cartas e retorna a qtd
 
     strcpy(recebida.valorNaipe, auxNaipe); //atualizaNaipe de carta recebida;
 
     if(!cartasCompradas){
         int indice = selecionaCarta(recebida, &jogadores[1]);  //recebe carta que vai jogar
-        pilhaSobMesa[contador++] = jogadores[1].maoDoJogador.cartasDoJogador[indice]; //atualiza pilha com carta selecionada
-        acaoDescarta(&jogadores[1], indice, auxNaipe); //envia açao ao gerenciador, atualiza naipe e mao do jogador
+
+        pilhaSobMesa[contador++] = acaoDescarta(&jogadores[1], indice, auxNaipe); //envia açao ao gerenciador, atualiza naipe e mao do jogador
+        atualizaEspecial(pilhaSobMesa[contador-1], &especial); //atualiza o status de especial quando bot joga
     }else{
         retornaFrase();
         acaoCompra(cartasCompradas, &jogadores[1]); //compra cartas e atualiza mao do jogador
@@ -508,9 +497,8 @@ int main() {
     desalocaCarta(&pilhaSobMesa[i]);
   }
 
-  desalocaCarta(&ultimoEspecial);
-  free(jogadores);
   free(minhaMao.cartasDoJogador);
+  free(jogadores);
 
     return 0;
 }
