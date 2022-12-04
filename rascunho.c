@@ -30,13 +30,6 @@ typedef struct {   // representa um jogador
     Mao maoDoJogador;
 }Jogador;
 
-typedef struct {   // será utilisado para ler e escreveer as ações de cada jogador por turno 
-    char *acao;
-    Carta complementoCarta;
-    char *complemento1;
-    char *complemento2;
-}AcoesPorTurno;
-
 void debug(char *message) {
     fprintf(stderr, "%s ", message);
 }
@@ -133,34 +126,6 @@ Mao maoInicial(char *mensagem){     // Faz a leitura das cartas iniciais do bot
     return saida;
 }
 
-AcoesPorTurno jogadaSemComplemento2(char * mensagem1, char *mensagem2){
-    AcoesPorTurno saida;
-    int tamanho = strlen(mensagem1);
-    saida.acao = malloc(sizeof(char) * tamanho);
-    strcpy(saida.acao, mensagem1);
-    if (strcmp(mensagem1, "TURN") != 0){
-        saida.complementoCarta = gerarCarta(mensagem2);
-    }else{
-        tamanho = strlen(mensagem2);
-        saida.complemento1 = malloc(sizeof(char) * tamanho);
-        strcpy(saida.complemento1, mensagem2);
-    }
-    return saida;
-}
-
-AcoesPorTurno jogadaComComplemento2(char * mensagem1, char *mensagem2, char *mensagem3){
-    AcoesPorTurno saida;
-
-    int tamanho = strlen(mensagem1);
-    saida.acao = malloc(sizeof(char) * tamanho);
-    strcpy(saida.acao, mensagem1);
-    saida.complementoCarta = gerarCarta(mensagem2);
-    tamanho = strlen(mensagem3);
-    saida.complemento2 = malloc(sizeof(char) * tamanho);
-    strcpy(saida.complemento2, mensagem3);
-
-    return saida;
-}
 
 Carta inicializaCarta(char *valorCarta, char *valorNaipe){
   char dados[MAX_LINE];  
@@ -289,7 +254,7 @@ int selecionaCarta(Carta c, Jogador *bot){ //encontra a carta a ser jogada (AIND
 
   if(verificaValor("C", bot->maoDoJogador, &indice)){ 
     return indice;
-  }else if(strcmp(c.valorNaipe, naipe) == 0 && verificaValor(c.valorCarta, bot->maoDoJogador, &indice)){
+  }else if(strcmp(c.valorNaipe, naipe) == 0 && verificaNaipe(c.valorNaipe, bot->maoDoJogador, &indice)){
     return indice;
   }else if(verificaValor(c.valorCarta, bot->maoDoJogador, &indice)){
     return indice;
