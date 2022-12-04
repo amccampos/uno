@@ -115,7 +115,7 @@ Mao maoInicial(char *mensagem){     // Faz a leitura das cartas iniciais do bot
     for (int i = 1; i < cont - 1; i++) {
         tamanho = strlen(vetor[i]);
         aux = gerarCarta(vetor[i]);
-        saida.cartasDoJogador[i-1].valorCarta = malloc(sizeof(char) * 2);
+        saida.cartasDoJogador[i-1].valorCarta = malloc(sizeof(char) * 3);
         saida.cartasDoJogador[i-1].valorNaipe = malloc(sizeof(char) * 4);
         strcpy(saida.cartasDoJogador[i-1].valorCarta, aux.valorCarta);
         strcpy(saida.cartasDoJogador[i-1].valorNaipe, aux.valorNaipe);
