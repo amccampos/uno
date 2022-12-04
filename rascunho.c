@@ -283,8 +283,9 @@ void atualizaEspecial(Carta c, int *especial){
 
 int selecionaCarta(Carta c, Jogador *bot){ //encontra a carta a ser jogada (AINDA VOU MUDAR VARIAS COISAS)
   int indice = 0; //indice da carta que será jogada
-  char naipe[strlen("♥")];
+  char naipe[MAX_LINE];
   strcpy(naipe, naipeFrequente(bot));
+  naipe[strlen(naipe)] = '\0';
 
   if(verificaValor("C", bot->maoDoJogador, &indice)){ 
     return indice;
@@ -326,17 +327,19 @@ void recebeCartas(int qtdCartas, Jogador *bot){
 }
 
 Carta acaoDescarta(Jogador *bot, int indice, char *auxNaipe){
-  char naipe[strlen("♣")];
+  char naipe[MAX_LINE];
   Carta c = bot->maoDoJogador.cartasDoJogador[indice];
   strcpy(auxNaipe, c.valorNaipe);
 
   if(strcmp(c.valorCarta, "A") == 0 || strcmp(c.valorCarta, "C") == 0){
       strcpy(naipe, naipeFrequente(bot));
+      naipe[strlen(naipe)] = '\0';
       printf("DISCARD %s%s %s\n", c.valorCarta, c.valorNaipe, naipe);
       strcpy(auxNaipe, naipe);
     }else{
       printf("DISCARD %s%s\n", c.valorCarta, c.valorNaipe);
     }
+    auxNaipe[strlen(auxNaipe)] = '\0';
 
     retiraCarta(bot, indice); //retira a carta da mao do jogador
     return c;
@@ -404,7 +407,7 @@ int main() {
     //ultimoEspecial = inicializaCarta(" ", "♥"); 
 
     char complemento2[MAX_LINE];
-    char auxNaipe[strlen("♣")]; //guarda o naipe atual da partida
+    char auxNaipe[MAX_LINE]; //guarda o naipe atual da partida
 
     setbuf(stdin, NULL);  
     setbuf(stdout, NULL);  
@@ -432,6 +435,7 @@ int main() {
     scanf("TABLE %s\n", temp);
     pilhaSobMesa[contador++] = gerarCarta(temp);
     strcpy(auxNaipe, pilhaSobMesa[contador-1].valorNaipe); //atualiza auxNaipe
+    auxNaipe[strlen(auxNaipe)] = '\0';
     atualizaEspecial(pilhaSobMesa[contador-1], &especial);
      
     char id[MAX_ID_SIZE];
@@ -461,7 +465,8 @@ int main() {
             strcpy(auxNaipe, complemento2);
           }
            atualizaEspecial(pilhaSobMesa[contador-1], &especial);
-        } 
+           auxNaipe[strlen(auxNaipe)] = '\0';
+        }
 
         if(especial == 1 && strcmp(acao, "BUY")==0 && 
           (strcmp(complemento, "2")==0 || strcmp(complemento, "4")==0) ||
